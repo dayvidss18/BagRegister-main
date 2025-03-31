@@ -1,0 +1,5 @@
+def calculaPrecoBagagem():
+    precoUnidade = 4
+    if entradaDestinoBagagem.get() == "Terminal":
+        bagagem["valorBagagem"] = precoUnidade * bagagem["quantidadeItens"]
+    elif entradaDestinoBagagem.get() == "Rua":

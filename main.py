@@ -1,5 +1,7 @@
 #Biblioteca Ultilizada CustomTkinetr, por enquanto ainda devo ultilizar esta biblioteca até achar outra que tenha uma variedade melhor.
 import customtkinter
+import requests
+import webbrowser
 
 #Dicionario da bagagem, posteriormente deve-se referenciar diretamente para o banco de dados, então ainda é bem rustico.
 bagagem = {
