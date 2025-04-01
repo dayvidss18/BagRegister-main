@@ -2,17 +2,21 @@
 import customtkinter
 import requests
 import webbrowser
+from tkinter import messagebox
 
 #Dicionario da bagagem, posteriormente deve-se referenciar diretamente para o banco de dados, então ainda é bem rustico.
 bagagem = {
-    "nomePessoa": "",
-    "cpf": "",
+    "nomePessoa": None,
+    "cpf": None,
     "tipoBagagem": "",
-    "destinoBagagem"
+    "destinoBagagem" : "",
     "pesoBagagem" : 0,
     "valorBagagem" : 0,
     "quantidadeItens" : 0
 }
+def alerta():
+    messagebox.showinfo("Atenção","ATENÇÃO OS DADOS NÃO FORAM INSERIDOS!!!")
+
 
 #Função de Cadastro principal da bagagem, ela deve ter todas as informações da bagagem, futuramente refatorar para limpar possiveis linhas adicionais inuteis.
 def cadastraBagagem():
@@ -22,13 +26,35 @@ def cadastraBagagem():
     bagagem["tipoBagagem"] = entradaTipoBagagem.get(),
     bagagem["quantidadeItens"] = entradaQtdBagagem.get()
     print(bagagem)
-    telaDashboard()
+    if bagagem["nomePessoa"] == "" and bagagem["cpf"] == "" :
+        alerta()
+    else:
+        calculaPrecoBagagem()    
 
 def calculaPrecoBagagem():
     precoUnidade = 4
     if entradaDestinoBagagem.get() == "Terminal":
-        bagagem["valorBagagem"] = precoUnidade * bagagem["quantidadeItens"]
+        bagagem["valorBagagem"] = precoUnidade * int(bagagem["quantidadeItens"])
+        telaDashboard()
     elif entradaDestinoBagagem.get() == "Rua":
+        janelaDesitinoBagagem = customtkinter.CTkToplevel()
+        janelaDesitinoBagagem.geometry("800x500")
+        janelaDesitinoBagagem.grab_set_global()
+
+        janelaDesitinoBagagem.grid_rowconfigure(0, weight=1)
+        janelaDesitinoBagagem.grid_rowconfigure(1, weight=1)
+        janelaDesitinoBagagem.grid_rowconfigure(2, weight=1)
+
+        janelaDesitinoBagagem.grid_columnconfigure(0, weight=1)
+        janelaDesitinoBagagem.grid_columnconfigure(1, weight=1)
+        janelaDesitinoBagagem.grid_columnconfigure(2, weight=1)
+
+        entradaEnderecoBagagemLabel = customtkinter.CTkLabel(janelaDesitinoBagagem, text="Endereço De Entrega")
+        entradaEnderecoBagagemLabel.grid(column=1,row=0)
+        entradaEnderecoBagagem = customtkinter.CTkEntry(janelaDesitinoBagagem)
+        entradaEnderecoBagagem.grid(column=1, row=1)
+        btnCalcular = customtkinter.CTkButton(janelaDesitinoBagagem,text="Calcular")
+        btnCalcular.grid(column=1,row=2)
 
 
 #Função que define valor da bagagem, ela vai receber uma formula que trata uma serie de condições e para onde a bagagem deve ser levada
