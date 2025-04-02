@@ -1,144 +1,125 @@
-#Biblioteca Ultilizada CustomTkinetr, por enquanto ainda devo ultilizar esta biblioteca até achar outra que tenha uma variedade melhor.
+# Biblioteca utilizada CustomTkinter, por enquanto ainda devo utilizar esta biblioteca
+# até achar outra que tenha uma variedade melhor.
 import customtkinter
-import requests
-import webbrowser
 from tkinter import messagebox
 
-#Dicionario da bagagem, posteriormente deve-se referenciar diretamente para o banco de dados, então ainda é bem rustico.
+# Dicionário da bagagem, posteriormente deve-se referenciar diretamente para o banco de dados,
+# então ainda é bem rústico.
 bagagem = {
     "nomePessoa": None,
     "cpf": None,
     "tipoBagagem": "",
-    "destinoBagagem" : "",
-    "pesoBagagem" : 0,
-    "valorBagagem" : 0,
-    "quantidadeItens" : 0
+    "destinoBagagem": "",
+    "pesoBagagem": 0,
+    "valorBagagem": 0,
+    "quantidadeItens": 0
 }
+
 def alerta():
-    messagebox.showinfo("Atenção","ATENÇÃO OS DADOS NÃO FORAM INSERIDOS!!!")
+    messagebox.showinfo("Atenção", "ATENÇÃO OS DADOS NÃO FORAM INSERIDOS!!!")
 
-
-#Função de Cadastro principal da bagagem, ela deve ter todas as informações da bagagem, futuramente refatorar para limpar possiveis linhas adicionais inuteis.
+# Função de Cadastro principal da bagagem, ela deve ter todas as informações da bagagem.
+# Futuramente refatorar para limpar possíveis linhas adicionais inúteis.
 def cadastraBagagem():
-    bagagem["nomePessoa"] = entradaNome.get(),
-    bagagem["cpf"] = entradaCpf.get(),
-    bagagem["pesoBagagem"] = entradaPesoBagagem.get(),
-    bagagem["tipoBagagem"] = entradaTipoBagagem.get(),
+    bagagem["nomePessoa"] = entradaNome.get()
+    bagagem["cpf"] = entradaCpf.get()
+    bagagem["tipoBagagem"] = entradaTipoBagagem.get()
     bagagem["quantidadeItens"] = entradaQtdBagagem.get()
-    print(bagagem)
-    if bagagem["nomePessoa"] == "" and bagagem["cpf"] == "" :
+    bagagem["destinoBagagem"] = entradaDestinoBagagem.get()
+    
+    if not bagagem["nomePessoa"] or not bagagem["cpf"]:
         alerta()
+        return
     else:
-        calculaPrecoBagagem()    
+        calculaPrecoBagagem()
 
+# Função para calcular o preço da bagagem com base no destino e na quantidade de itens.
 def calculaPrecoBagagem():
-    precoUnidade = 4
-    if entradaDestinoBagagem.get() == "Terminal":
+    precoUnidade = 0
+    if bagagem["tipoBagagem"] == "Malas/Bolsas":
+        precoUnidade = 5
+    elif bagagem["tipoBagagem"] == "Comércio/Logista":
+        precoUnidade = 6
+    elif bagagem ["tipoBagagem"] == "Motores/Mecânica":
+        precoUnidade = 10
+    
+    if bagagem["destinoBagagem"] == "Terminal":
         bagagem["valorBagagem"] = precoUnidade * int(bagagem["quantidadeItens"])
         telaDashboard()
-    elif entradaDestinoBagagem.get() == "Rua":
-        janelaDesitinoBagagem = customtkinter.CTkToplevel()
-        janelaDesitinoBagagem.geometry("800x500")
-        janelaDesitinoBagagem.grab_set_global()
+    
+    elif bagagem["destinoBagagem"] == "Rua":
+            def calculaValorDestino():
+                try:
+                    qtdQuarteirao = int(entradaEnderecoBagagem.get())  # Converte para inteiro
+                    valorBagagemItens = float(precoUnidade) * float(entradaQtdBagagem.get())  # Calcula valor total da bagagem
+                
+                    qtdQuarteiraoValor = (valorBagagemItens * qtdQuarteirao) / 4  # Ajuste conforme a regra de redução
+                
+                    bagagem["valorBagagem"] = valorBagagemItens + qtdQuarteiraoValor  # Armazena o valor no dicionário
+                
+                    mostraValor.configure(text=f"Valor: R$ {bagagem['valorBagagem']:.2f}")  # Exibe o valor atualizado
+                except ValueError:
+                    messagebox.showerror("Erro", "Por favor, insira um número válido de quarteirões.") 
 
-        janelaDesitinoBagagem.grid_rowconfigure(0, weight=1)
-        janelaDesitinoBagagem.grid_rowconfigure(1, weight=1)
-        janelaDesitinoBagagem.grid_rowconfigure(2, weight=1)
+            def finalizarCalculo():
+                janelaDestinoBagagem.destroy()
+                telaDashboard()
+        
+            janelaDestinoBagagem = customtkinter.CTkToplevel()
+            janelaDestinoBagagem.geometry("400x300")
+            janelaDestinoBagagem.grab_set()
+            
+            customtkinter.CTkLabel(janelaDestinoBagagem, text="Quantidade De Quarteirões").pack(pady=10)
+            entradaEnderecoBagagem = customtkinter.CTkEntry(janelaDestinoBagagem)
+            entradaEnderecoBagagem.pack(pady=5)
+            
+            btnCalcular = customtkinter.CTkButton(janelaDestinoBagagem, text="Calcular", command=calculaValorDestino)
+            btnCalcular.pack(pady=5)
+            
+            mostraValor = customtkinter.CTkLabel(janelaDestinoBagagem, text="Valor: R$ 0.00")
+            mostraValor.pack(pady=10)
+            
+            btnFinalizar = customtkinter.CTkButton(janelaDestinoBagagem, text="Finalizar", command=finalizarCalculo)
+            btnFinalizar.pack(pady=10)
 
-        janelaDesitinoBagagem.grid_columnconfigure(0, weight=1)
-        janelaDesitinoBagagem.grid_columnconfigure(1, weight=1)
-        janelaDesitinoBagagem.grid_columnconfigure(2, weight=1)
-
-        entradaEnderecoBagagemLabel = customtkinter.CTkLabel(janelaDesitinoBagagem, text="Endereço De Entrega")
-        entradaEnderecoBagagemLabel.grid(column=1,row=0)
-        entradaEnderecoBagagem = customtkinter.CTkEntry(janelaDesitinoBagagem)
-        entradaEnderecoBagagem.grid(column=1, row=1)
-        btnCalcular = customtkinter.CTkButton(janelaDesitinoBagagem,text="Calcular")
-        btnCalcular.grid(column=1,row=2)
-
-
-#Função que define valor da bagagem, ela vai receber uma formula que trata uma serie de condições e para onde a bagagem deve ser levada
-#Ex: se a bagagen for levada para dentro do terminal mesmo, somente sera levado em consideração o peso da bagagem e não a distancia.
-#Ex2: Se a bagagem for levada para fora da rodoviaria sera levada em consideração o peso e a distancia, ainda não defini o preço a cada metragem mas esta no processo.
-
-
-
-#Função que exibe a tela de dashboard da aplicação, ela abre a janela e fecha a janela app(Principal).
+# Função que exibe a tela de dashboard da aplicação, ela abre a janela e fecha a janela app (Principal).
 def telaDashboard():
     dashboard = customtkinter.CTkToplevel()
     dashboard.geometry("800x500")
     app.iconify()
-
-    dashboard.grid_rowconfigure(0, weight=1)
-    dashboard.grid_rowconfigure(1, weight=1)
-    dashboard.grid_rowconfigure(2, weight=1)
-    dashboard.grid_rowconfigure(3, weight=1)
-    dashboard.grid_rowconfigure(4, weight=1)
-
-    dashboard.grid_columnconfigure(0, weight=1)
-    dashboard.grid_columnconfigure(1, weight=1)
-    dashboard.grid_columnconfigure(2, weight=1)
-    dashboard.grid_columnconfigure(3, weight=1)
-    dashboard.grid_columnconfigure(4, weight=1)
-
-    labelDashboard = customtkinter.CTkLabel(dashboard, text="Dashboard Principal" ,width=50, height=50, fg_color='transparent' )
-    labelDashboard.grid(column=2 ,row=0)
-    #labelDashboard.pack(padx=10,pady=10)
-
-    InfoNomeCliente = customtkinter.CTkLabel(dashboard, text= bagagem["nomePessoa"],
-                                                       width=50, height=50, fg_color='white',text_color="black",corner_radius=10 )
-    InfoNomeCliente.grid(column=0 ,row=1)
-    #InfoNomeCliente.pack(padx=10,pady=10)
-
-    InfoCpfCliente = customtkinter.CTkLabel(dashboard, text= bagagem["cpf"],
-                                                       width=50, height=50, fg_color='white',text_color="black" )
-    InfoCpfCliente.grid(column=0 ,row=2)
-    #InfoCpfCliente.pack(padx=10,pady=10)
-
-
-    dashboard.grab_set_global()
-
     
+    customtkinter.CTkLabel(dashboard, text="Dashboard Principal").pack(pady=10)
+    customtkinter.CTkLabel(dashboard, text=f"Nome: {bagagem['nomePessoa']}").pack(pady=5)
+    customtkinter.CTkLabel(dashboard, text=f"CPF: {bagagem['cpf']}").pack(pady=5)
+    customtkinter.CTkLabel(dashboard, text=f"Valor Total: R$ {bagagem['valorBagagem']:.2f}").pack(pady=5)
+    
+    dashboard.grab_set()
 
-#Função que inicia a janela principal do app, posteriormente terá que ser modificada para uma tela de acesso de usuario, não sei ainda se é necessario o uso de credencial.
+# Função que inicia a janela principal do app.
 app = customtkinter.CTk()
 app.geometry("800x600")
+customtkinter.CTkLabel(app, text='Cadastro').pack(pady=10)
 
-labelTiltulo = customtkinter.CTkLabel(app, text='Cadastro', width=50, height=50, fg_color='transparent')
-labelTiltulo.grid(column=1 ,row=1)
-labelTiltulo.pack(padx=10,pady=10)
+entradaNome = customtkinter.CTkEntry(app, placeholder_text="Nome Do Cliente", width=300)
+entradaNome.pack(pady=10)
 
-entradaNome = customtkinter.CTkEntry(app,placeholder_text="Nome Do Cliente",width=300,height=40,)
-entradaNome.pack(padx=10,pady=10)
+entradaCpf = customtkinter.CTkEntry(app, placeholder_text="Cpf do Cliente", width=300)
+entradaCpf.pack(pady=10)
 
-entradaCpf = customtkinter.CTkEntry(app,placeholder_text="Cpf do Cliente",width=300,height=40,)
-entradaCpf.pack(padx=10,pady=10)
-
-#Função que exibe os tipos de bagagem e define o tipo.
-
-labelTiltuloTipoBagagem = customtkinter.CTkLabel(app, text='Tipo De Bagagem', width=50, height=30, fg_color='transparent')
-labelTiltuloTipoBagagem.pack()
-
+customtkinter.CTkLabel(app, text='Tipo De Bagagem').pack()
 entradaTipoBagagem = customtkinter.CTkComboBox(app, values=["Malas/Bolsas", "Comércio/Logista", "Motores/Mecânica"])
 entradaTipoBagagem.pack(pady=10)
 
-labelTiltuloDestinoBagagem = customtkinter.CTkLabel(app, text='Destino Da Bagagem', width=50, height=30, fg_color='transparent')
-labelTiltuloDestinoBagagem.pack()
-
+customtkinter.CTkLabel(app, text='Destino Da Bagagem').pack()
 entradaDestinoBagagem = customtkinter.CTkComboBox(app, values=["Terminal", "Rua"])
-entradaDestinoBagagem.pack(padx=10,pady=10)
-
-entradaPesoBagagem = customtkinter.CTkEntry(app,placeholder_text="Peso Bagagem",width=300,height=40,)
-entradaPesoBagagem.pack(padx=10,pady=10)
-
-labelTiltuloQtdBagagem = customtkinter.CTkLabel(app, text='Quantidade De Itens', width=50, height=30, fg_color='transparent')
-labelTiltuloQtdBagagem.pack()
-
-entradaQtdBagagem = customtkinter.CTkEntry(app,placeholder_text="Nome",width=300,height=40,)
-entradaQtdBagagem.pack(padx=10,pady=10)
+entradaDestinoBagagem.pack(pady=10)
 
 
-btnCadastro = customtkinter.CTkButton(app,text="Cadastrar",width=50, height=30,command=cadastraBagagem)
-btnCadastro.pack(padx=10,pady=10)
+customtkinter.CTkLabel(app, text='Quantidade De Itens').pack()
+entradaQtdBagagem = customtkinter.CTkEntry(app, placeholder_text="Quantidade", width=300)
+entradaQtdBagagem.pack(pady=10)
+
+btnCadastro = customtkinter.CTkButton(app, text="Cadastrar", command=cadastraBagagem)
+btnCadastro.pack(pady=10)
 
 app.mainloop()
